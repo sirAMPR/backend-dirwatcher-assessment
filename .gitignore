@@ -1,1 +1,4 @@
 .vscode/
+*.pyc
+*.summary
+*.DS_Store
