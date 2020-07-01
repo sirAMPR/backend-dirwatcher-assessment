@@ -1,5 +1,7 @@
 import signal
 import time
+import argparse
+import sys
 
 exit_flag = False
 
@@ -17,7 +19,29 @@ def signal_handler(sig_num, frame):
     exit_flag = True
 
 
-def main():
+def create_parser():
+    """Creates an argument parser object"""
+    parser = argparse.ArgumentParser()
+    parser.add_argument('poll', help='polling interval')
+    parser.add_argument('magic_text', help='string to search for')
+    parser.add_argument(
+        'ext', help='filters what kind of file extension to search within')
+    parser.add_argument('directory', help='specify the directory to watch')
+
+    return parser
+
+
+def main(args):
+    parser = create_parser()
+
+    if not args():
+        parser.print_usage()
+        sys.exit(1)
+
+    parsed_args = parser.parse_args(args)
+
+    polling_interval = parsed_args.poll
+
     # Hook into these two signals from the OS
     signal.signal(signal.SIGINT, signal_handler)
     signal.signal(signal.SIGTERM, signal_handler)
@@ -39,3 +63,7 @@ def main():
     # final exit point happens here
     # Log a message that we are shutting down
     # Include the overall uptime since program start
+
+
+if '__name__' == '__main__':
+    main(sys.argv[1:])
