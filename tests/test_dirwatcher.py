@@ -2,10 +2,11 @@
 
 import unittest
 
-__author__ = 'madarp'
+__author__ = 'aradcliff'
 
 
 class TestDirwatcher(unittest.TestCase):
+    """Dirwatcher test case"""
 
     def test_prog(self):
         pass

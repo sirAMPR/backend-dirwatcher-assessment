@@ -2,8 +2,10 @@ import signal
 import time
 import argparse
 import sys
+import os
 
 exit_flag = False
+file_dictionary = {}
 
 
 def signal_handler(sig_num, frame):
@@ -15,32 +17,55 @@ def signal_handler(sig_num, frame):
     :return None
     """
     # log the associated signal name
-    logger.warn('Received ' + signal.Signals(sig_num).name)
-    exit_flag = True
+    # logger.warn('Received ' + signal.Signals(sig_num).name)
+    # exit_flag = True
+
+
+def scan_single_file(file, magic_text):
+    with open(file) as f:
+        file_length = len(f.readlines())
+        # TODO check for magic text
+        # TODO add file to dictionary and last line read
+
+
+def detect_added_files(file):
+    pass
+
+
+def detect_removed_files(directory):
+    pass
+
+
+def watch_directory(directory, magic_text, extension):
+    # check if dictionary is empty
+    if not file_dictionary:
+        for file in os.listdir(directory):
+            if file.endswith(extension):
+                scan_single_file(file, magic_text)
 
 
 def create_parser():
     """Creates an argument parser object"""
     parser = argparse.ArgumentParser()
-    parser.add_argument('poll', help='polling interval')
+    parser.add_argument('-p', '--poll', help='polling interval')
     parser.add_argument('magic_text', help='string to search for')
     parser.add_argument(
         'ext', help='filters what kind of file extension to search within')
     parser.add_argument('directory', help='specify the directory to watch')
-
     return parser
 
 
 def main(args):
     parser = create_parser()
+    ns = parser.parse_args(args)
 
-    if not args():
+    if not ns:
         parser.print_usage()
         sys.exit(1)
 
     parsed_args = parser.parse_args(args)
 
-    polling_interval = parsed_args.poll
+    polling_interval = parsed_args.poll if parsed_args.poll else 1
 
     # Hook into these two signals from the OS
     signal.signal(signal.SIGINT, signal_handler)
@@ -51,7 +76,8 @@ def main(args):
     while not exit_flag:
         try:
             # call my directory watching function
-            pass
+            watch_directory(parsed_args.directory,
+                            parsed_args.magic_text, parsed_args.ext)
         except Exception as e:
             # This is an UNHANDLED exception
             # Log an ERROR level message here
@@ -65,5 +91,5 @@ def main(args):
     # Include the overall uptime since program start
 
 
-if '__name__' == '__main__':
+if __name__ == '__main__':
     main(sys.argv[1:])
